@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.qameta.allure:allure-testng:LAST_VERSION">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/qameta/allure/allure-testng/LAST_VERSION/allure-testng-LAST_VERSION.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/io/qameta/allure/allure-testng/LAST_VERSION/allure-testng-LAST_VERSION-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/qameta/allure/allure-testng/LAST_VERSION/allure-testng-LAST_VERSION-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
