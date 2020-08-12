@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Negative CRUD Test Suite">
+    <test name="CRUD operations negative tests">
+        <classes>
+            <class name="com.epam.ta.spec.CRUDTests">
+                <methods>
+                    <include name="getNotExistingPost"/>
+                    <include name="updateNotExistingPost"/>
+                    <include name="deleteNotExistingPost"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
