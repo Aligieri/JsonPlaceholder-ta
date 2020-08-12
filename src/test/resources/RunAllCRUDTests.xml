@@ -5,5 +5,5 @@
     <classes>
       <class name="com.epam.ta.spec.CRUDTests"/>
     </classes>
-  </test> <!-- JsonPlaceholder-ta -->
-</suite> <!-- Default Suite -->
+  </test>
+</suite>
