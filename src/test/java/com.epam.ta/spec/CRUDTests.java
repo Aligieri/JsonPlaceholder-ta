@@ -2,19 +2,15 @@ package com.epam.ta.spec;
 
 import com.epam.ta.model.Post;
 import com.epam.ta.utils.Utils;
+import com.epam.ta.utils.RequestBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.qameta.allure.Description;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.testng.annotations.Test;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static com.epam.ta.utils.Utils.assertThat;
 import static org.hamcrest.Matchers.*;
 
 
@@ -26,15 +22,15 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpGet(API_URI + "posts");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
         String expectedBody = Utils.readJsonToString(EXPECTED_FILES_PATH + "all_posts.json");
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_OK));
-        assertThat(
+        assertThat("All posts present in the expected posts",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree(expectedBody))
         );
@@ -46,15 +42,15 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpGet(API_URI + "posts/7");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
         String expectedBody = Utils.readJsonToString(EXPECTED_FILES_PATH + "PID7_post.json");
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_OK));
-        assertThat(
+        assertThat("Post with PID 7 matches expected post",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree(expectedBody))
         );
@@ -67,16 +63,17 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpGet(API_URI + "posts?userId=" + testUserID);
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
         List<Post> posts = mapper.readValue(responseBody, new TypeReference<List<Post>>() {
         });
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_OK));
-        posts.forEach(post -> assertThat(post.getUserId(), equalTo(testUserID)));
+        posts.forEach(post -> assertThat("Each post have UID: " + testUserID,
+                post.getUserId(), equalTo(testUserID)));
     }
 
     @Test(description = "Get not existing post")
@@ -85,14 +82,14 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpGet(API_URI + "posts/0");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
 
         // Then
-        assertThat(
+        assertThat("Response should be 404 NOT_FOUND",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_NOT_FOUND));
-        assertThat(
+        assertThat("Response body should be empty",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree("{}"))
         );
@@ -104,15 +101,16 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpPost(API_URI + "posts");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
         String expectedBody = Utils.readJsonToString(EXPECTED_FILES_PATH + "CreatedPost.json");
 
         // Then
-        assertThat(
-                httpResponse.getStatusLine().getStatusCode(),
-                equalTo(HttpStatus.SC_CREATED));
-        assertThat(
+        assertThat("Response should be 201", httpResponse.getStatusLine().getStatusCode(), equalTo(HttpStatus.SC_CREATED));
+//        assertThat(
+//                httpResponse.getStatusLine().getStatusCode(),
+//                equalTo(HttpStatus.SC_CREATED));
+        assertThat("Created post should return it's ID",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree(expectedBody))
         );
@@ -124,15 +122,15 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpPut(API_URI + "posts/1");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
         String expectedBody = Utils.readJsonToString(EXPECTED_FILES_PATH + "UpdatedPost.json");
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_OK));
-        assertThat(
+        assertThat("Updated post return it's ID",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree(expectedBody))
         );
@@ -144,13 +142,14 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpPut(API_URI + "posts/0");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
+        HttpResponse httpResponse = RequestBuilder.execute(request);
 
         // Then
-        assertThat(
+        assertThat("Response should be 500 INTERNAL_ERROR",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_INTERNAL_SERVER_ERROR));
-        assertThat(EntityUtils.toString(httpResponse.getEntity()),
+        assertThat("Error message should contain TypeError description",
+                Utils.toString(httpResponse),
                 containsString("TypeError: Cannot read property 'id' of undefined"));
     }
 
@@ -160,15 +159,16 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpPatch(API_URI + "posts/7");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
         String expectedBody = Utils.readJsonToString(EXPECTED_FILES_PATH + "PID7_post.json");
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_OK));
-        assertThat(mapper.readTree(responseBody),
+        assertThat("Should return all post information after PATCH",
+                mapper.readTree(responseBody),
                 equalTo(mapper.readTree(expectedBody)));
     }
 
@@ -178,14 +178,14 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpDelete(API_URI + "posts/7");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
-                equalTo(HttpStatus.SC_OK));
-        assertThat(
+                equalTo(HttpStatus.SC_FAILED_DEPENDENCY));
+        assertThat("Response body should be empty",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree("{}"))
             );
@@ -197,14 +197,14 @@ public class CRUDTests extends CommonTest {
         HttpUriRequest request = new HttpDelete(API_URI + "posts/0");
 
         // When
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        String responseBody = EntityUtils.toString(httpResponse.getEntity());
+        HttpResponse httpResponse = RequestBuilder.execute(request);
+        String responseBody = Utils.toString(httpResponse);
 
         // Then
-        assertThat(
+        assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
                 equalTo(HttpStatus.SC_OK));
-        assertThat(
+        assertThat("Response body should be empty",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree("{}"))
         );
