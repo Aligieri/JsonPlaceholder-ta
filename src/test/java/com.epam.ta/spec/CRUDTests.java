@@ -184,7 +184,7 @@ public class CRUDTests extends CommonTest {
         // Then
         assertThat("Response should be 200 OK",
                 httpResponse.getStatusLine().getStatusCode(),
-                equalTo(HttpStatus.SC_FAILED_DEPENDENCY));
+                equalTo(HttpStatus.SC_OK));
         assertThat("Response body should be empty",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree("{}"))
