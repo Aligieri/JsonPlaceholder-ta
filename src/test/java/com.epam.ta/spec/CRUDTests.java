@@ -106,10 +106,9 @@ public class CRUDTests extends CommonTest {
         String expectedBody = Utils.readJsonToString(EXPECTED_FILES_PATH + "CreatedPost.json");
 
         // Then
-        assertThat("Response should be 201", httpResponse.getStatusLine().getStatusCode(), equalTo(HttpStatus.SC_CREATED));
-//        assertThat(
-//                httpResponse.getStatusLine().getStatusCode(),
-//                equalTo(HttpStatus.SC_CREATED));
+        assertThat("Response should be 201",
+                httpResponse.getStatusLine().getStatusCode(),
+                equalTo(HttpStatus.SC_CREATED));
         assertThat("Created post should return it's ID",
                 mapper.readTree(responseBody),
                 equalTo(mapper.readTree(expectedBody))
